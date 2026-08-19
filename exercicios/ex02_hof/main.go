@@ -36,6 +36,28 @@ package main
 //   Encadeie as três chamadas em UMA ÚNICA expressão dentro do main().
 //
 // ============================================================
+func filtrar(num[]int,condicao func(int) bool)[]int{	
+	var resultado[]int
+	for _, valor := range num{
+		if condicao (valor){
+			resultado = append(resultado, valor)
+		}
+	}
+	return resultado
+}
+
+func mapear(num[]int, tranforma func(int)int)[]int{
+	var resultado []int
+	for _, valor := range num{
+		novoValor := tranforma(valor)
+		resultado = append(resultado, novoValor)
+	}
+	return resultado
+}
+
+func reduzir(){
+
+}
 
 func main() {
 	// Escreva seu código aqui

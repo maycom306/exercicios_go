@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"errors"
+)
+
 // ============================================================
 //  EXERCÍCIO 1 — Calculadora de IMC com Structs e Métodos
 // ============================================================
@@ -37,7 +42,60 @@ package main
 //     func (p Pessoa) NomeDoMetodo() TipoRetorno { ... }
 //
 // ============================================================
+type pessoa struct{
+	nome string
+	kg float32
+	alt float32
+}
 
-func main() {
-	// Escreva seu código aqui
+func (p pessoa) cal()(float32, error){
+		if p.alt <= 0{
+			return 0, errors.New("Altura tem que superior a 0")
+		}
+		if p.kg <= 0{
+			return 0, errors.New("Peso tem que ser mais que 0)")
+		}
+		imc := p.kg/(p.alt*p.alt)
+		return imc, nil
+}
+func (p pessoa)class(imc float32)string{
+	switch{
+	case imc <18.5:
+		return "abaixo do peso"
+	case imc >= 18.5 && imc < 25.0:
+		return "Peso normal"
+	case imc >= 25.0 && imc < 30.0:
+		return "Sobrepeso"
+	case imc >= 30.0:
+		return "Obesidade"
+	default:
+		return "Dados invalidos"
+	}
+}
+
+
+
+
+func main(){
+	// Slice contendo 5 pessoas válidas e 1 caso de teste para gerar erro
+	pessoas := []pessoa{
+		{nome: "Ana", kg: 52.0, alt: 1.63},
+		{nome: "Bruno", kg: 80.0, alt: 1.75},
+		{nome: "Carla", kg: 68.0, alt: 1.58},
+		{nome: "Diego", kg: 95.0, alt: 1.82},
+		{nome: "Elena", kg: 58.0, alt: 1.70},
+		{nome: "Teste Inválido", kg: 70.0, alt: 0.0}, // <- Caso de teste com erro (divisão por zero)
+	}
+
+	for _, p := range pessoas {
+		imc, err := p.cal()
+
+		if err != nil {
+			fmt.Printf("❌ [%s] Erro: %s\n", p.nome, err)
+			continue
+		}
+
+		classificacao := p.class(imc)
+		fmt.Printf("✅ [%s] | IMC: %.2f | %s\n", p.nome, imc, classificacao)
+	}
 }
