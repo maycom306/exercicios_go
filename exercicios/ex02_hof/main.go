@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // ============================================================
 //  EXERCÍCIO 2 — Higher-Order Functions: Filtrar / Mapear / Reduzir
 // ============================================================
@@ -55,10 +57,31 @@ func mapear(num[]int, tranforma func(int)int)[]int{
 	return resultado
 }
 
-func reduzir(){
+func reduzir(num[]int, acumular func(int, int)int, valorInicial int) int{
+	total := valorInicial
+	for _, valor := range num{
+		total = acumular(total, valor)
 
+	}
+	return total
 }
 
 func main() {
-	// Escreva seu código aqui
+	numero := []int{1,2,3,4,5,6,7,8,9,10}// Escreva seu código aqui
+
+	par := filtrar(numero, func (n int)bool{
+		return n%2	== 0
+	})
+
+	dobro := mapear(par, func (n int) int{
+		return n*2 
+	})
+	soma := reduzir(dobro, func (acumular, valorInicial int) int{
+		return acumular + valorInicial
+	}, 0)
+	
+	fmt.Println("Original:", numero)
+	fmt.Println("Pares:", par)
+	fmt.Println("Dobrados:", dobro)
+	fmt.Println("Soma total:", soma)
 }
