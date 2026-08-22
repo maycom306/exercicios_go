@@ -14,7 +14,7 @@ package main
 //
 //  1. No main(), crie um contexto com timeout de 1 segundo:
 //       ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-//       defer cancel()
+//       defer cancel()s
 //
 //  2. Implemente a função:
 //       func operacaoPesada(ctx context.Context, id int, wg *sync.WaitGroup, resultados chan<- Resultado)
