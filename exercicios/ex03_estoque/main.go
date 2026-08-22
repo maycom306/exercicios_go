@@ -1,5 +1,10 @@
 package main
 
+import (
+	"errors"
+	"strings"
+)
+
 // ============================================================
 //  EXERCÍCIO 3 — Gerenciador de Estoque (maps + error handling)
 // ============================================================
@@ -22,7 +27,7 @@ package main
 //
 //  3. Implemente os seguintes métodos em *Estoque:
 //
-//     a) AdicionarProduto(nome string, preco float64, qtd int) Produto
+//     a) AdicionarProduto(nome string, preco float64, Qnt int) Produto
 //          → Cria e armazena um produto com ID auto-incrementado
 //
 //     b) RemoverEstoque(id, quantidade int) error
@@ -47,6 +52,69 @@ package main
 //
 // ============================================================
 
+type Produto struct {
+	ID int
+	Nome string
+	Preco float64
+	Qnt int
+}
+
+type Estoque struct{
+	BancoDados map[int]Produto
+	ItemID int
+}
+func (e *Estoque) AdcionarProduto (Nome string, Preco float64, Qnt int) Produto{
+	NovoItem := Produto{
+		Nome : Nome,
+		ID : e.ItemID,
+		Preco : Preco,
+		Qnt : Qnt,
+	}
+	e.BancoDados[e.ItemID] = NovoItem
+	e.ItemID++
+	return NovoItem 
+}
+
+func (r *Estoque)RemoverEstoque(ID int, Qnt int) error{
+	Existente, existe := r.BancoDados[ID]
+	if !existe {
+		return errors.New("item Não encontrado")
+	}
+	if  Qnt > Existente.Qnt{
+		return errors.New("Estoque Insuficiente")
+	}
+	Existente.Qnt -= Qnt
+	r.BancoDados[ID] = Existente
+	return nil
+}
+
+func (r *Estoque) BuscarPorNome(Nome string) ([]Produto,error){
+	var ItensEncontrados []Produto
+	minusculo := strings.ToLower(Nome)
+	for _, Produto := range r.BancoDados{
+		if strings.ToLower(Produto.Nome) == minusculo{
+			ItensEncontrados = append(ItensEncontrados, Produto)
+		}
+		}
+	if len(ItensEncontrados) == 0{
+		return nil, errors.New("Nenhum produto encontrado")
+	}
+	return ItensEncontrados,nil
+}
+func (r *Estoque) TotalEmEstoque() (totalItens int, TotalEstoque float64){
+	for _, Produto := range r.BancoDados{
+		totalItens += Produto.Qnt
+		TotalEstoque+= float64(Produto.Qnt)*Produto.Preco
+	}
+	return
+}
+
+		
+	
+
+		
+
+
 func main() {
-	// Escreva seu código aqui
+	// Inicializando o Estoque com ID inicial em 1
 }
