@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"sync"
+)
+
 // ============================================================
 //  EXERCÍCIO 4 — Pipeline Concorrente com Canais
 // ============================================================
@@ -50,7 +55,66 @@ package main
 //   ...
 //
 // ============================================================
+func gerador(max int) <-chan int {
+	canal := make(chan int)
+	
+	go func() {
+		// O defer agenda o fechamento do canal para o final desta goroutine.
+		// Assim que o loop 'for' acabar (ou se houver qualquer erro), o Go fecha o canal para nós!
+		defer close(canal) 
+
+		for i := 1; i <= max; i++ {
+			canal <- i
+		}
+		
+		// close(canal) -> ESSA LINHA NÃO É MAIS NECESSÁRIA AQUI!
+	}()
+	
+	return canal
+}
+
+func primo(num int) bool{
+	if num <= 1{
+		return false
+	}
+	for i := 2; i*i <= num; i++{
+		if num%i == 0{
+			return false
+		}
+	}
+	return true
+}
+
+func filtro(entrada <- chan int) <- chan int{
+	saida := make(chan int)
+
+	go func(){
+		defer close(saida)
+		
+		for num := range entrada{
+			if primo(num){
+				saida <- num
+			}
+		}
+	}()
+	return saida 
+}
+
+func processar(entrada <-chan int, wg *sync.WaitGroup){
+	defer wg.Done()
+
+	for num := range entrada{
+		fmt.Printf("%d² = %d\n", num, num*num)
+	}
+}
 
 func main() {
 	// Escreva seu código aqui
+	var wg sync.WaitGroup
+	var ate int
+	fmt.Scanf("Digite um valor para saber os numeros primos ate ele e o seu quadrado: %d", &ate)
+	wg.Add(1)
+	go processar(filtro(gerador(ate)), &wg)
+	wg.Wait()
+
 }
