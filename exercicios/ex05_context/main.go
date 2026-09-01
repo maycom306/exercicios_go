@@ -1,5 +1,13 @@
 package main
 
+import (
+	"context"
+	"math/rand"
+	"sync"
+	"time"
+	"fmt"
+)
+
 // ============================================================
 //  EXERCÍCIO 5 — Context com Timeout e Cancelamento
 // ============================================================
@@ -16,8 +24,8 @@ package main
 //       ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 //       defer cancel()s
 //
-//  2. Implemente a função:
-//       func operacaoPesada(ctx context.Context, id int, wg *sync.WaitGroup, resultados chan<- Resultado)
+//  2. Impleemente a função:
+//       func operacaoPesada(ctx contxt.Context, id int, wg *sync.WaitGroup, resultados chan<- Resultado)
 //
 //     Dentro dela:
 //       a) Sorteie uma duração aleatória entre 100ms e 2000ms
@@ -47,7 +55,69 @@ package main
 //   ctx.Done() retorna um canal que é fechado quando o contexto expira.
 //
 // ============================================================
+type Resultado struct{
+	ID int
+	Duracao time.Duration
+	Conclusao bool
+}
+
+func OperacaoPesada(ctx context.Context, ID int, wg *sync.WaitGroup, Resultados chan<- Resultado){
+	duracao := time.Duration(rand.Intn(1901)+100) * time.Millisecond
+	defer wg.Done()
+	select {
+	case <- time.After(duracao):
+		res := Resultado{
+			ID: ID,
+			Duracao: duracao,
+			Conclusao: true,
+		}
+		Resultados <- res
+		fmt.Printf("Operação %d foi concluida com %s duração\n", res.ID, res.Duracao)
+			
+	case <-ctx.Done():
+		res := Resultado{
+			ID: ID,
+			Duracao: duracao,
+			Conclusao: false,
+		}
+		Resultados <- res
+		fmt.Printf("[GOroutine %d] Cancelada! tempo que seria necessario: %s\n", res.ID, res.Duracao)
+	}
+	
+}
+
 
 func main() {
 	// Escreva seu código aqui
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+
+	defer cancel()
+
+	resultados := make(chan Resultado, 5)
+	var wg sync.WaitGroup
+
+	fmt.Println("=== Iniciando 5 Goroutines Concorrentes com Timeout de 1s ===")
+	
+	for i := 1; i<=5; i++{
+		wg.Add(1)
+		go OperacaoPesada(ctx, i, &wg, resultados)
+	}
+	go func(){
+		wg.Wait()
+		close(resultados)
+	}()
+	concluidas := 0
+	terminadas := 0
+
+	for res := range resultados{
+		if res.Conclusao == true{
+			concluidas++
+		}else{
+			terminadas++
+		}
+	
+	}
+	fmt.Println("\n=== RESUMO FINAL ===")
+	fmt.Printf("===== Concluidas [%d] ======= Caceladas [%d]\n", concluidas, terminadas)	
 }
