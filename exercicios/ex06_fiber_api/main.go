@@ -1,16 +1,26 @@
 package main
 
+import (
+	"log"
+	"strconv"
+	"strings"
+	"sync"
+
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/logger"
+    "github.com/gofiber/fiber/v3/middleware/recover"
+)
 // ============================================================
-//  EXERCÍCIO 6 — API REST com Router Chi
+//  EXERCÍCIO 6 — API REST com Fiber
 // ============================================================
 //
 // OBJETIVO:
-//   Criar uma API REST usando o router `chi`, um dos mais
-//   populares e idiomáticos roteadores HTTP do ecossistema Go.
+//   Criar uma API REST usando o framework Fiber.
 //
 // SETUP (rode antes de começar):
-//   go mod init ex06_chi
-//   go get github.com/go-chi/chi/v5
+//   go mod init ex06_fiber
+//   go get github.com/gofiber/fiber/v3
+
 //
 // INSTRUÇÕES:
 //
@@ -30,30 +40,29 @@ package main
 //       → Retorna todos os produtos em JSON
 //       → Use mu.RLock() / mu.RUnlock() para leitura segura
 //
-//     GET  /produtos/{id}
-//       → Lê o parâmetro com: chi.URLParam(r, "id")
+//     GET  /produtos/:id
+//       → Lê o parâmetro com: c.Params("id")
 //       → Converta para int com strconv.Atoi
 //       → Retorna 404 se não encontrado
 //
 //     POST /produtos
-//       → Lê o body com json.NewDecoder(r.Body).Decode(&p)
+//       → Lê o body JSON usando c.BodyParser(&p)
 //       → Atribui um ID automático
 //       → Retorna 201 Created com o produto criado em JSON
 //
-//     DELETE /produtos/{id}
+//     DELETE /produtos/:id
 //       → Remove o produto pelo ID
 //       → Retorna 204 No Content se removido, 404 se não encontrado
 //
-//  4. No main(), configure o router chi e suba o servidor:
-//       r := chi.NewRouter()
-//       r.Use(middleware.Logger)     // log de requisições
-//       r.Use(middleware.Recoverer)  // recupera panics
+//  4. No main(), configure o app Fiber e suba o servidor:
+//       app := fiber.New()
+//       app.Use(logger.New())    // log de requisições
+//       app.Use(recover.New())   // recupera panics
 //       // registre as rotas aqui
-//       http.ListenAndServe(":8080", r)
+//       app.Listen(":8080")
 //
 // DICA — Retornar JSON:
-//   w.Header().Set("Content-Type", "application/json")
-//   json.NewEncoder(w).Encode(dados)
+//   Use c.Status(...).JSON(dados) para retornar dados em JSON.
 //
 // TESTE com curl ou Postman:
 //   curl http://localhost:8080/produtos
@@ -64,7 +73,44 @@ package main
 //   curl -X DELETE http://localhost:8080/produtos/1
 //
 // ============================================================
+type Produto struct{
+	ID int `json:"id"`
+	Nome string `json:"nome"`
+	Preco float64 `json:"preco"`
+}
 
-func main() {
-	// Escreva seu código aqui
+type Db struct{
+	produtos  map[int]Produto
+	proximoID int
+	mu sync.RWMutex
+}
+
+func main(){
+
+	db := Db{
+		produtos: make(map[int]Produto),
+		proximoID: 1,
+	}
+
+	app := fiber.New(fiber.Config{
+		AppName: "Appv1.0",
+		ServerHeader: "Exercicio 6",
+	})
+	app.Use(logger.New())
+	app.Use(recover.New())
+	
+	app.Post("/produtos", func (c *fiber.Ctx) error{
+		p := new(Produto)
+		if err := c.BodyParser(p); err != nil {
+			return err
+		}
+	}	
+	
+
+	app.Get("/produtos/:id", func(c *fiber.Ctx) error{
+		return c.SendString(c.Params("id"))
+		
+	})
+	_ = db
+	app.Listen(":8080")
 }
