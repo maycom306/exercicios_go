@@ -1,42 +1,42 @@
 package main
 
 // ============================================================
-//  EXERCÍCIO 7 — Middleware de Autenticação com Chi
+//  EXERCÍCIO 7 — Middleware de Autenticação com Fiber
 // ============================================================
 //
 // OBJETIVO:
-//   Aprender a criar e encadear middlewares HTTP com chi,
+//   Aprender a criar e encadear middlewares HTTP com Fiber,
 //   incluindo autenticação via API Key e logging customizado.
 //
 // SETUP:
 //   go mod init ex07_middleware
-//   go get github.com/go-chi/chi/v5
+//   go get github.com/gofiber/fiber/v3
 //
 // INSTRUÇÕES:
 //
 //  1. Crie um middleware `RequireAPIKey` que:
 //       - Lê o header "X-API-Key" da requisição
 //       - Se o header estiver ausente ou incorreto → responde 401 Unauthorized
-//       - Se estiver correto → chama next.ServeHTTP(w, r) para continuar
+//       - Se estiver correto → chama c.Next() para continuar
 //       - A chave válida pode ser uma constante: const apiKey = "minha-chave-secreta"
 //
-//     Assinatura de um middleware chi:
-//       func RequireAPIKey(next http.Handler) http.Handler {
-//           return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//     Assinatura de um middleware Fiber:
+//       func RequireAPIKey() fiber.Handler {
+//           return func(c fiber.Ctx) error {
 //               // sua lógica aqui
-//           })
+//           }
 //       }
 //
 //  2. Crie um middleware `Logger` customizado que:
 //       - Registra: método HTTP, path, e tempo de execução do handler
-//       - Use time.Now() antes e time.Since() depois de chamar next
+//       - Use time.Now() antes e time.Since() depois de chamar c.Next()
 //       - Imprima no formato: "[GET] /rota → 200 em 1.2ms"
 //
 //  3. Crie um middleware `CORS` simples que:
 //       - Adiciona o header "Access-Control-Allow-Origin: *"
 //       - Responde 200 em requisições OPTIONS (preflight)
 //
-//  4. Monte o router com dois grupos de rotas:
+//  4. Monte o app com dois grupos de rotas:
 //
 //     Rotas PÚBLICAS (sem autenticação):
 //       GET /health → retorna {"status": "ok"} em JSON
