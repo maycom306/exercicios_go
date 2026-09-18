@@ -1,15 +1,15 @@
 package middleware
 
 import (
-	"fmt"
-	"time"
-
+	"os"
 	"github.com/gofiber/fiber/v3"
 )
 
+var apiKey = os.Getenv("API_KEY")
+
 func RequireApi() fiber.Handler {
 	return func(c fiber.Ctx) error {
-		key := c.Get("X_API_key")
+		key := c.Get("X-API-Key")
 
 		if key != apiKey {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -21,26 +21,5 @@ func RequireApi() fiber.Handler {
 	}
 }
 
-func LoggerTime() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		horario_inicial := time.Now()
 
-		erro := c.Next()
 
-		duracao := time.Since(horario_inicial)
-		fmt.Printf("O metodo é [%s].\n Caminho: /%s\n Status: %d\n A duração total foi: %v", c.Method(), c.Path(), c.Response().StatusCode(), duracao)
-
-		return erro
-	}
-
-}
-
-func Cors() fiber.Handler {
-	return func(c fiber.Ctx) error {
-		c.Set("Access-Control-Allow-Origin","*")
-		if c.Method() == "OPTIONS"{
-			return c.SendStatus(200)
-		}
-		return c.Next()
-	}
-}
