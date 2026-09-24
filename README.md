@@ -13,7 +13,7 @@ exercicios/
 ├── ex03_estoque/    → Maps e Error Handling
 ├── ex04_pipeline/   → Pipeline Concorrente com Canais
 ├── ex05_context/    → Context com Timeout e Cancelamento
-├── ex06_chi_api/    → API REST com Router Chi
+├── ex06_Fiber_api/    → API REST com Fiber
 ├── ex07_middleware/ → Middleware de Autenticação com Chi
 ├── ex08_cobra_cli/  → CLI Tool com Cobra
 ├── ex09_cache/      → Cache Concorrente com sync.RWMutex
@@ -81,15 +81,15 @@ Concluídas: 3 | Canceladas: 2
 
 ---
 
-### Ex 06 — API REST com Router Chi
-> **Conceitos:** `net/http`, `go-chi/chi`, JSON, `sync.RWMutex`
+### Ex 06 — API REST com Fiber
+> **Conceitos:** Fiber, handlers HTTP, JSON, `sync.RWMutex`
 
 Cria uma API REST de produtos com banco de dados em memória. Implementa os endpoints `GET /produtos`, `GET /produtos/{id}`, `POST /produtos` e `DELETE /produtos/{id}`.
 
 **Setup:**
 ```bash
-go mod init ex06_chi
-go get github.com/go-chi/chi/v5
+go mod init ex06_fiber
+go get github.com/gofiber/fiber/v2
 go run main.go
 ```
 
