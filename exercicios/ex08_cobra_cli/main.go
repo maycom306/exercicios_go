@@ -10,7 +10,7 @@ package main
 //
 // SETUP:
 //   go mod init ex08_cobra
-//   go get github.com/spf13/cobra
+//   ]
 //
 // INSTRUÇÕES:
 //
@@ -85,6 +85,16 @@ package main
 //
 // ============================================================
 
+import (
+    "fmt"
+    "os"
+
+    "ex08_cli/cmd"
+)
+
 func main() {
-	// Escreva seu código aqui
+    if err := cmd.Execute(); err != nil {
+        fmt.Fprintln(os.Stderr, err)
+        os.Exit(1)
+    }
 }
