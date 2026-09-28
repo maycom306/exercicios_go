@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"os"
+
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -10,7 +11,7 @@ func RequireAPIKey() fiber.Handler {
 		key := c.Get("X-API-Key")
 		var apiKey = os.Getenv("API_KEY")
 
-		if key != apiKey {
+		if apiKey == "" || key == "" || key != apiKey {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Chave de API Invalida",
 			})
